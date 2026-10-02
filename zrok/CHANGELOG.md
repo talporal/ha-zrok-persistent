@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1
+
+- Fix reserved-share discovery for zrok v1.1.12 by using `zrok overview` JSON instead of the nonexistent `zrok list reserved` command.
+- Match only reserved shares whose `shareToken` exactly equals the configured share name.
+
 ## 1.0.0
 
 - Initial repository release.
