@@ -1,0 +1,23 @@
+name: "zrok Persistent Tunnel"
+version: "1.0.0"
+slug: "zrok_persistent"
+description: "Persistent, self-healing zrok tunnel for Home Assistant"
+url: "https://github.com/talporal/ha-zrok-persistent"
+
+arch:
+  - amd64
+
+startup: services
+boot: auto
+init: false
+host_network: true
+
+options:
+  enable_token: ""
+  share_name: "tnethome"
+  target: "http://localhost:8123"
+
+schema:
+  enable_token: password
+  share_name: str
+  target: str
