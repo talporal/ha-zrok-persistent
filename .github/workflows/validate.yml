@@ -1,0 +1,43 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate YAML
+        run: |
+          python - <<'PY'
+          import pathlib, yaml
+          for path in [pathlib.Path("repository.yaml"), pathlib.Path("zrok/config.yaml")]:
+              with path.open(encoding="utf-8") as f:
+                  yaml.safe_load(f)
+              print(f"OK: {path}")
+          PY
+
+      - name: Validate shell syntax
+        run: bash -n zrok/run.sh
+
+      - name: Verify version format
+        run: |
+          VERSION="$(python - <<'PY'
+          import yaml
+          with open("zrok/config.yaml", encoding="utf-8") as f:
+              print(yaml.safe_load(f)["version"])
+          PY
+          )"
+          echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'
+
+      - name: Build amd64 image
+        run: docker build --platform linux/amd64 -t ha-zrok-persistent:test zrok
