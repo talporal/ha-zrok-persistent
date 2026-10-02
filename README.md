@@ -33,3 +33,12 @@ Keep your zrok enable token private. It is stored as a password-type Home Assist
 ## Upstream
 
 This project packages the upstream zrok CLI. zrok itself is developed by the OpenZiti project and is not maintained by this repository.
+
+
+## Updates and releases
+
+Home Assistant detects updates from the app version in `zrok/config.yaml`. Normal Supervisor app updates preserve the app's persistent `/data`, including its enrolled zrok environment.
+
+This repository uses semantic versioning for the Home Assistant app and GitHub tags/releases for an auditable release history. The bundled upstream zrok CLI has its own version and is pinned separately in the Dockerfile.
+
+For maintainers, see [RELEASING.md](RELEASING.md).
