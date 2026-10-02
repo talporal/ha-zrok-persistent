@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify tag matches app version
+        run: |
+          VERSION="$(python - <<'PY'
+          import re
+          text = open("zrok/config.yaml", encoding="utf-8").read()
+          m = re.search(r'^version:\s*["\x27]?([^"\x27\s]+)', text, re.M)
+          if not m:
+              raise SystemExit("version not found")
+          print(m.group(1))
+          PY
+          )"
+          test "v$VERSION" = "$GITHUB_REF_NAME" || {
+            echo "Tag $GITHUB_REF_NAME does not match config version $VERSION"
+            exit 1
+          }
+
+      - name: Validate shell syntax
+        run: bash -n zrok/run.sh
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          NOTES="$(awk -v version="$VERSION" '
+            $0 == "## " version {found=1; next}
+            found && /^## / {exit}
+            found {print}
+          ' zrok/CHANGELOG.md)"
+          if [ -z "$NOTES" ]; then
+            NOTES="Release $GITHUB_REF_NAME"
+          fi
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes "$NOTES"
