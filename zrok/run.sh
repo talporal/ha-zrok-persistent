@@ -84,13 +84,17 @@ wait_for_environment() {
 
 query_reserved_shares() {
     local rc
-    RESERVED_OUTPUT="$(zrok list reserved 2>&1)"
+    RESERVED_OUTPUT="$(zrok overview 2>&1)"
     rc=$?
     return "$rc"
 }
 
 reservation_visible() {
-    printf '%s\n' "$RESERVED_OUTPUT" | grep -Fq "$SHARE_NAME"
+    printf '%s\n' "$RESERVED_OUTPUT" | jq -e --arg share "$SHARE_NAME" '
+        any(.environments[]?.shares[]?;
+            (.reserved == true) and (.shareToken == $share)
+        )
+    ' >/dev/null 2>&1
 }
 
 is_unauthorized() {
