@@ -1,5 +1,5 @@
 name: "zrok Persistent Tunnel"
-version: "1.0.0"
+version: "1.0.1"
 slug: "zrok_persistent"
 description: "Persistent, self-healing zrok tunnel for Home Assistant"
 url: "https://github.com/talporal/ha-zrok-persistent"
